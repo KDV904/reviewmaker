@@ -450,7 +450,7 @@ app.get("/api/health", (_, res) => res.json({ ok: true }));
 // ----------------------------------------------------
 // 서버 시작
 // ----------------------------------------------------
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // <- 이 형태여야 함
 app.listen(PORT, () => {
-  console.log(`✅ Server running: http://localhost:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
