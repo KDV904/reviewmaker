@@ -1,265 +1,362 @@
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8" />
-  <title>원고 제작 생성기 ✨</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SheetJS (엑셀 다운로드용) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <style>
-    .shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,.06); }
-    .sticky-th th { position: sticky; top: 0; background:#f8fafc; z-index: 1; }
-  </style>
-</head>
-<body class="bg-gradient-to-b from-white to-slate-50 text-slate-900">
-  <div class="max-w-5xl mx-auto p-6 space-y-10">
+<!DOCTYPE html>
+<html
+  lang="ko"
+  class="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100"
+>
+  <head>
+    <meta charset="utf-8" />
+    <title>원고 제작 생성기 ✨</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: "class" };
+    </script>
+    <!-- SheetJS (엑셀 다운로드용) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+      .shadow-soft {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      }
+      .sticky-th th {
+        position: sticky;
+        top: 0;
+        background: #f8fafc;
+        z-index: 1;
+      }
+      .dark .sticky-th th {
+        background: #1e293b;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-300"
+  >
+    <!-- 오른쪽 상단 다크모드 토글 -->
+    <div class="absolute top-4 right-4">
+      <button
+        id="dark-toggle"
+        class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 text-sm"
+      >
+        🌞 / 🌙
+      </button>
+    </div>
 
-    <!-- 헤더 -->
-    <header class="text-center space-y-3">
-      <h1 class="text-3xl md:text-4xl font-bold tracking-tight">
-        원고 제작 생성기 <span>📝✨</span>
-      </h1>
-      <p class="text-slate-600">
-        제안서 PDF를 업로드하고 원하는 수량을 입력하면<br/>
-        <b>자연스러운 리뷰/원고</b>를 자동으로 만들어드립니다 🚀
-      </p>
-    </header>
-
-    <!-- 안내 섹션 -->
-    <section class="grid md:grid-cols-3 gap-5">
-      <!-- 사용 방법 -->
-      <div class="bg-white rounded-2xl shadow-soft p-5 space-y-2">
-        <div class="flex items-center gap-2 text-indigo-600 font-semibold text-lg">
-          ✅ <span>사용 방법</span>
-        </div>
-        <p class="text-sm text-slate-600 leading-6">
-          📎 제안서 <b>PDF 파일</b> 업로드<br/>
-          ✍️ 원하는 <b>원고 제작 수량</b> 입력<br/>
-          🚀 <b>제작 시작하기</b> 버튼 클릭
+    <div class="max-w-5xl mx-auto p-6 space-y-10">
+      <!-- 헤더 -->
+      <header class="text-center space-y-3">
+        <h1 class="text-3xl md:text-4xl font-bold tracking-tight">
+          원고 제작 생성기 <span>📝✨</span>
+        </h1>
+        <p class="text-slate-600 dark:text-slate-300">
+          제안서 PDF를 업로드하고 원하는 수량을 입력하면<br />
+          <b>자연스러운 리뷰/원고</b>를 자동으로 만들어드립니다 🚀
         </p>
-      </div>
-      <!-- 출력 결과 미리보기 -->
-      <div class="bg-white rounded-2xl shadow-soft p-5 space-y-2">
-        <div class="flex items-center gap-2 text-emerald-600 font-semibold text-lg">
-          📋 <span>출력 결과 미리보기</span>
+      </header>
+
+      <!-- 안내 섹션 -->
+      <section class="grid md:grid-cols-3 gap-5">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow-soft p-5 space-y-2"
+        >
+          <div
+            class="flex items-center gap-2 text-indigo-600 font-semibold text-lg dark:text-indigo-400"
+          >
+            ✅ <span>사용 방법</span>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-6">
+            📎 제안서 <b>PDF 파일</b> 업로드<br />
+            ✍️ 원하는 <b>원고 제작 수량</b> 입력<br />
+            🚀 <b>제작 시작하기</b> 버튼 클릭
+          </p>
         </div>
-        <p class="text-sm text-slate-600 leading-6">
-          👀 생성된 원고를 <b>표</b>로 확인<br/>
-          ☑️ 어색한 원고는 <b>체크박스 선택</b><br/>
-          ♻️ 선택한 원고만 <b>부분 재생성</b>
-        </p>
-      </div>
-      <!-- 참고 -->
-      <div class="bg-white rounded-2xl shadow-soft p-5 space-y-2">
-        <div class="flex items-center gap-2 text-pink-600 font-semibold text-lg">
-          📌 <span>참고</span>
+        <div
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow-soft p-5 space-y-2"
+        >
+          <div
+            class="flex items-center gap-2 text-emerald-600 font-semibold text-lg dark:text-emerald-400"
+          >
+            📋 <span>출력 결과 미리보기</span>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-6">
+            👀 생성된 원고를 <b>표</b>로 확인<br />
+            ☑️ 어색한 원고는 <b>체크박스 선택</b><br />
+            ♻️ 선택한 원고만 <b>부분 재생성</b>
+          </p>
         </div>
-        <ul class="text-sm text-slate-600 leading-6 list-disc pl-4">
-          <li>❌ 끝맺음 이중표현(요요/다다/다요/음음/…) 자동 차단</li>
-          <li>✨ <b>부분 재생성</b>으로 필요한 행만 교체 가능</li>
-          <li>⬇️ 최종 확정본은 <b>엑셀 다운로드</b> 지원</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- 입력 폼 -->
-    <section class="bg-white rounded-2xl shadow-soft p-6 space-y-5">
-      <h2 class="text-lg font-semibold">입력 📂</h2>
-      <div class="grid md:grid-cols-3 gap-4">
-        <!-- PDF 업로드 -->
-        <div class="md:col-span-2">
-          <label for="pdf" class="block text-sm font-medium text-slate-700 mb-1">제안서 PDF 업로드</label>
-          <input id="pdf" type="file" accept="application/pdf"
-                 class="w-full rounded-xl border border-slate-300 p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <div
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow-soft p-5 space-y-2"
+        >
+          <div
+            class="flex items-center gap-2 text-pink-600 font-semibold text-lg dark:text-pink-400"
+          >
+            📌 <span>참고</span>
+          </div>
+          <ul
+            class="text-sm text-slate-600 dark:text-slate-300 leading-6 list-disc pl-4"
+          >
+            <li>❌ 끝맺음 이중표현 자동 차단</li>
+            <li>✨ <b>부분 재생성</b>으로 필요한 행만 교체 가능</li>
+            <li>⬇️ 최종 확정본은 <b>엑셀 다운로드</b> 지원</li>
+          </ul>
         </div>
-        <!-- 수량 -->
-        <div>
-          <label for="count" class="block text-sm font-medium text-slate-700 mb-1">원고 제작 수량</label>
-          <input id="count" type="number" min="1" max="200" value="30"
-                 class="w-full rounded-xl border border-slate-300 p-2 text-right focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </section>
+
+      <!-- 입력 폼 -->
+      <section
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-soft p-6 space-y-5"
+      >
+        <h2 class="text-lg font-semibold">입력 📂</h2>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <label
+              for="pdf"
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              >제안서 PDF 업로드</label
+            >
+            <input
+              id="pdf"
+              type="file"
+              accept="application/pdf"
+              class="w-full rounded-xl border border-slate-300 dark:border-slate-600 p-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label
+              for="count"
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              >원고 제작 수량</label
+            >
+            <input
+              id="count"
+              type="number"
+              min="1"
+              max="200"
+              value="30"
+              class="w-full rounded-xl border border-slate-300 dark:border-slate-600 p-2 text-right bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
         </div>
-      </div>
-      <!-- 액션 버튼 -->
-      <div class="flex flex-wrap items-center gap-3 pt-2">
-        <button id="btn-generate"
-                class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-500">
-          제작 시작하기 🚀
-        </button>
-        <button id="btn-fix-selected"
-                class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-500 hidden">
-          선택한 번호만 수정하기 ♻️
-        </button>
-        <button id="btn-export"
-                class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 hidden">
-          엑셀로 추출하기 ⬇️
-        </button>
-        <span id="status" class="text-sm text-slate-500"></span>
-      </div>
-    </section>
-
-    <!-- 처리 결과 미리보기 -->
-    <section class="bg-white rounded-2xl shadow-soft p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold">처리 결과 미리보기 👀</h2>
-        <span class="text-xs text-slate-500">체크박스로 어색한 번호만 선택하세요</span>
-      </div>
-      <div class="border rounded-xl overflow-hidden">
-        <div class="max-h-[60vh] overflow-auto">
-          <table class="min-w-full text-sm sticky-th">
-            <thead>
-              <tr>
-                <th class="border-b p-2 w-14 text-center">선택</th>
-                <th class="border-b p-2 w-16 text-center">번호</th>
-                <th class="border-b p-2 text-left">리뷰 / 원고 내용</th>
-              </tr>
-            </thead>
-            <tbody id="preview-body">
-              <!-- 데이터 생성 후 여기에 행이 추가됨 -->
-            </tbody>
-          </table>
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <button
+            id="btn-generate"
+            class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-500"
+          >
+            제작 시작하기 🚀
+          </button>
+          <button
+            id="btn-fix-selected"
+            class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-500 hidden"
+          >
+            선택한 번호만 수정하기 ♻️
+          </button>
+          <button
+            id="btn-export"
+            class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 hidden"
+          >
+            엑셀로 추출하기 ⬇️
+          </button>
+          <span
+            id="status"
+            class="text-sm text-slate-500 dark:text-slate-400"
+          ></span>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 푸터 -->
-    <footer class="py-6 text-center text-xs text-slate-500">
-      ⓘ 자동 생성된 원고는 최종 업로드 전 반드시 검수하세요.  
-      어색한 끝맺음은 서버에서 자동 교정됩니다.  
-    </footer>
-  </div>
+      <!-- 처리 결과 미리보기 -->
+      <section
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-soft p-6 space-y-4"
+      >
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">처리 결과 미리보기 👀</h2>
+          <span class="text-xs text-slate-500 dark:text-slate-400"
+            >체크박스로 어색한 번호만 선택하세요</span
+          >
+        </div>
+        <div class="border rounded-xl overflow-hidden dark:border-slate-600">
+          <div class="max-h-[60vh] overflow-auto">
+            <table class="min-w-full text-sm sticky-th">
+              <thead>
+                <tr>
+                  <th class="border-b p-2 w-14 text-center">선택</th>
+                  <th class="border-b p-2 w-16 text-center">번호</th>
+                  <th class="border-b p-2 text-left">리뷰 / 원고 내용</th>
+                </tr>
+              </thead>
+              <tbody id="preview-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-  <!-- 기능 로직 -->
-  <script>
-    const elPdf     = document.getElementById("pdf");
-    const elCount   = document.getElementById("count");
-    const btnGen    = document.getElementById("btn-generate");
-    const btnFix    = document.getElementById("btn-fix-selected");
-    const btnExcel  = document.getElementById("btn-export");
-    const statusEl  = document.getElementById("status");
-    const tbody     = document.getElementById("preview-body");
+      <!-- 푸터 -->
+      <footer
+        class="py-6 text-center text-xs text-slate-500 dark:text-slate-400"
+      >
+        ⓘ 자동 생성된 원고는 업로드 전 반드시 검수하세요. 어색한 끝맺음은
+        서버에서 자동 교정됩니다.
+      </footer>
+    </div>
 
-    let summaryCache = "";
-    let reviews = [];
+    <!-- 기능 로직 -->
+    <script>
+      const elPdf = document.getElementById("pdf");
+      const elCount = document.getElementById("count");
+      const btnGen = document.getElementById("btn-generate");
+      const btnFix = document.getElementById("btn-fix-selected");
+      const btnExcel = document.getElementById("btn-export");
+      const statusEl = document.getElementById("status");
+      const tbody = document.getElementById("preview-body");
+      const btnDark = document.getElementById("dark-toggle");
 
-    const show = el => el.classList.remove("hidden");
-    const hide = el => el.classList.add("hidden");
-    const setStatus = (msg) => statusEl.textContent = msg || "";
-    const anyChecked = () => [...tbody.querySelectorAll('.row-check:checked')].length > 0;
+      let summaryCache = "";
+      let reviews = [];
 
-    function renderRows() {
-      tbody.innerHTML = "";
-      reviews.forEach((text, i) => {
-        const tr = document.createElement("tr");
-        tr.className = i % 2 ? "" : "odd:bg-slate-50";
-        tr.innerHTML = `
-          <td class="border-b p-2 text-center">
-            <input type="checkbox" class="row-check" data-idx="${i}">
-          </td>
+      const show = (el) => el.classList.remove("hidden");
+      const hide = (el) => el.classList.add("hidden");
+      const setStatus = (msg) => (statusEl.textContent = msg || "");
+      const anyChecked = () =>
+        [...tbody.querySelectorAll(".row-check:checked")].length > 0;
+
+      function renderRows() {
+        tbody.innerHTML = "";
+        reviews.forEach((text, i) => {
+          const tr = document.createElement("tr");
+          tr.className =
+            i % 2 ? "" : "odd:bg-slate-50 dark:odd:bg-slate-700/50";
+          tr.innerHTML = `
+          <td class="border-b p-2 text-center"><input type="checkbox" class="row-check" data-idx="${i}"></td>
           <td class="border-b p-2 text-center">${i + 1}</td>
-          <td class="border-b p-2">
-            <div class="whitespace-pre-wrap">${escapeHtml(text)}</div>
-          </td>
+          <td class="border-b p-2"><div class="whitespace-pre-wrap">${escapeHtml(
+            text
+          )}</div></td>
         `;
-        tbody.appendChild(tr);
+          tbody.appendChild(tr);
+        });
+        wireCheckboxToggle();
+        updateActionButtons();
+      }
+
+      function wireCheckboxToggle() {
+        tbody.querySelectorAll(".row-check").forEach((chk) => {
+          chk.addEventListener("change", updateActionButtons);
+        });
+      }
+
+      function updateActionButtons() {
+        if (anyChecked()) {
+          show(btnFix);
+          hide(btnExcel);
+        } else {
+          hide(btnFix);
+          show(btnExcel);
+        }
+      }
+
+      function escapeHtml(s) {
+        return (s ?? "").replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#039;",
+            }[m])
+        );
+      }
+
+      // PDF 업로드 → 리뷰 생성
+      async function onGenerate() {
+        const file = elPdf.files[0];
+        const n = Number(elCount.value || 30);
+        if (!file) return alert("PDF 파일을 선택해 주세요.");
+        if (!n || n < 1) return alert("수량을 올바르게 입력해 주세요.");
+
+        setStatus("생성 중…");
+        try {
+          const fd = new FormData();
+          fd.append("file", file);
+          fd.append("n", String(n));
+
+          const res = await fetch("/api/generate-from-file", {
+            method: "POST",
+            body: fd,
+          });
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+
+          summaryCache = data.summary || "";
+          reviews = data.reviews || [];
+          renderRows();
+          setStatus(`완료: ${reviews.length}개 생성`);
+        } catch (e) {
+          console.error(e);
+          setStatus("생성 실패");
+          alert("생성 중 오류가 발생했습니다.");
+        }
+      }
+
+      // 선택 행만 재생성
+      async function onFixSelected() {
+        const checked = [...tbody.querySelectorAll(".row-check:checked")].map(
+          (x) => Number(x.dataset.idx)
+        );
+        if (checked.length === 0) return;
+        if (summaryCache == null) return alert("먼저 PDF로 생성해 주세요.");
+
+        setStatus(`선택 ${checked.length}개 재생성 중…`);
+        try {
+          const res = await fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ summary: summaryCache, n: checked.length }),
+          });
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+
+          const newOnes = data.reviews || [];
+          checked.forEach((idx, i) => {
+            reviews[idx] = newOnes[i] || reviews[idx];
+          });
+          renderRows();
+          setStatus(`완료: ${checked.length}개 교체`);
+        } catch (e) {
+          console.error(e);
+          setStatus("재생성 실패");
+          alert("재생성 중 오류가 발생했습니다.");
+        }
+      }
+
+      // 엑셀 추출
+      function onExportExcel() {
+        if (!reviews.length) return alert("내보낼 데이터가 없습니다.");
+        const rows = reviews.map((r, i) => ({ 번호: i + 1, 리뷰: r }));
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(rows);
+        XLSX.utils.book_append_sheet(wb, ws, "리뷰");
+        XLSX.writeFile(wb, "리뷰_자동생성.xlsx");
+      }
+
+      // 다크모드 토글
+      function applyDarkMode(enabled) {
+        if (enabled) document.documentElement.classList.add("dark");
+        else document.documentElement.classList.remove("dark");
+        localStorage.setItem("darkmode", enabled ? "1" : "0");
+      }
+      btnDark.addEventListener("click", () => {
+        applyDarkMode(!document.documentElement.classList.contains("dark"));
       });
-      wireCheckboxToggle();
+      if (localStorage.getItem("darkmode") === "1") {
+        applyDarkMode(true);
+      }
+
+      btnGen.addEventListener("click", onGenerate);
+      btnFix.addEventListener("click", onFixSelected);
+      btnExcel.addEventListener("click", onExportExcel);
+
       updateActionButtons();
-    }
-
-    function wireCheckboxToggle() {
-      tbody.querySelectorAll(".row-check").forEach(chk => {
-        chk.addEventListener("change", updateActionButtons);
-      });
-    }
-
-    function updateActionButtons() {
-      if (anyChecked()) {
-        show(btnFix); hide(btnExcel);
-      } else {
-        hide(btnFix); show(btnExcel);
-      }
-    }
-
-    function escapeHtml(s) {
-      return (s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-    }
-
-    // PDF 업로드 → 리뷰 생성
-    async function onGenerate() {
-      const file = elPdf.files[0];
-      const n = Number(elCount.value || 30);
-      if (!file) return alert("PDF 파일을 선택해 주세요.");
-      if (!n || n < 1) return alert("수량을 올바르게 입력해 주세요.");
-
-      setStatus("생성 중…");
-      try {
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("n", String(n));
-
-        const res = await fetch("/api/generate-from-file", { method: "POST", body: fd });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-
-        summaryCache = data.summary || "";
-        reviews = data.reviews || [];
-        renderRows();
-        setStatus(`완료: ${reviews.length}개 생성`);
-      } catch (e) {
-        console.error(e);
-        setStatus("생성 실패");
-        alert("생성 중 오류가 발생했습니다.");
-      }
-    }
-
-// 선택 행만 재생성
-async function onFixSelected() {
-  const checked = [...tbody.querySelectorAll('.row-check:checked')].map(x => Number(x.dataset.idx));
-
-  // 1) 아무 것도 안 골랐으면 그냥 리턴
-  if (checked.length === 0) return;
-
-  // 2) summary가 정말 없을 때만 경고 (빈 문자열은 허용)
-  if (summaryCache == null) return alert("먼저 PDF로 생성해 주세요.");
-
-  setStatus(`선택 ${checked.length}개 재생성 중…`);
-  try {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ summary: summaryCache, n: checked.length })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-
-    const newOnes = data.reviews || [];
-    checked.forEach((idx, i) => { reviews[idx] = newOnes[i] || reviews[idx]; });
-    renderRows();
-    setStatus(`완료: ${checked.length}개 교체`);
-  } catch (e) {
-    console.error(e);
-    setStatus("재생성 실패");
-    alert("재생성 중 오류가 발생했습니다.");
-  }
-}
-
-    // 엑셀 추출
-    function onExportExcel() {
-      if (!reviews.length) return alert("내보낼 데이터가 없습니다.");
-      const rows = reviews.map((r, i) => ({ 번호: i + 1, 리뷰: r }));
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(rows);
-      XLSX.utils.book_append_sheet(wb, ws, "리뷰");
-      XLSX.writeFile(wb, "리뷰_자동생성.xlsx");
-    }
-
-    btnGen.addEventListener("click", onGenerate);
-    btnFix.addEventListener("click", onFixSelected);
-    btnExcel.addEventListener("click", onExportExcel);
-
-    updateActionButtons();
-  </script>
-</body>
+    </script>
+  </body>
 </html>
